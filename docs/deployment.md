@@ -59,6 +59,31 @@ rewrite then returns `index.html`, so login will fail. Deploy the API first, or 
 Use a Dockerfile (PHP 8.3 FPM + nginx + supervisor) for reproducible builds and to pin
 `pdo_pgsql`, `pgsql`, `intl`, and `gd`. Nixpacks can work, but requires the same extensions.
 
+`apps/api/Dockerfile` and `apps/api/railway.json` are already in the repository: the image is
+`serversideup/php:8.3-fpm-nginx` (PHP-FPM + nginx in one container), it caches config and views
+at container start (after Railway injects secrets), and the healthcheck is `GET /up`.
+
+### CLI walkthrough
+
+```bash
+cd apps/api
+npx --yes @railway/cli login
+npx --yes @railway/cli init --name restaurant-pos-api
+npx --yes @railway/cli variables --set "APP_ENV=production" --set "APP_DEBUG=false" ...
+npx --yes @railway/cli domain
+npx --yes @railway/cli up --detach
+```
+
+`railway up` uploads the current directory, builds the Dockerfile on Railway, and deploys it.
+Migrations are intentionally **not** part of container boot; run them once from a machine that
+has PHP installed:
+
+```bash
+npx --yes @railway/cli run php artisan migrate --force
+```
+
+Do not enable route caching: `routes/web.php` uses a closure, which cannot be serialised.
+
 ### Environment variables (API)
 
 ```env
