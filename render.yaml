@@ -1,0 +1,59 @@
+# Render Blueprint — deploys the Laravel API on the free plan.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: restaurant-pos-api
+    runtime: docker
+    plan: free
+    region: singapore
+    rootDir: apps/api
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    autoDeploy: true
+    envVars:
+      - key: APP_NAME
+        value: Restaurant POS
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_LOCALE
+        value: en
+      - key: APP_FALLBACK_LOCALE
+        value: en
+      - key: FRONTEND_URL
+        value: https://restaurant-pos-web-five.vercel.app
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: SESSION_DRIVER
+        value: cookie
+      - key: CACHE_STORE
+        value: database
+      # Free Render services cannot run a worker or cron job, so jobs run inline.
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      - key: MAIL_MAILER
+        value: log
+      # Free instances have 512 MB RAM; keep PHP-FPM from oversubscribing it.
+      - key: PHP_MEMORY_LIMIT
+        value: 192M
+      - key: PHP_FPM_PM_CONTROL
+        value: ondemand
+      - key: PHP_FPM_PM_MAX_CHILDREN
+        value: "5"
+      - key: PHP_OPCACHE_ENABLE
+        value: "1"
+      # Render injects PORT=10000; the serversideup image listens on NGINX_HTTP_PORT.
+      - key: NGINX_HTTP_PORT
+        value: "10000"
+      - key: HEALTHCHECK_PATH
+        value: /up
+      # Secrets: Render prompts for these when the Blueprint is created.
+      - key: APP_KEY
+        sync: false
+      - key: DB_URL
+        sync: false

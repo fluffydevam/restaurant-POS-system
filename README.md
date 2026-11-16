@@ -13,7 +13,7 @@ account; applications are approved manually before the workspace is unlocked.
 | API | Laravel 12 (PHP 8.2+), Sanctum tokens |
 | Web | React 19 + Vite + TypeScript + Tailwind v4 |
 | Database | PostgreSQL (Supabase, session pooler) |
-| API hosting | Railway (or any persistent PHP runtime) |
+| API hosting | Render (free Docker web service) |
 | Web hosting | Vercel |
 | Storage | Supabase Storage (S3 API) |
 
@@ -95,14 +95,15 @@ Tests run against in-memory SQLite (`phpunit.xml`) so they never touch the Supab
 
 ## Deployment
 
-See [docs/deployment.md](docs/deployment.md) for the full Vercel + Railway + Supabase setup.
+See [docs/deployment.md](docs/deployment.md) for the full Vercel + Render + Supabase setup.
 
 - **Web:** Vercel project with Root Directory `apps/web`. `apps/web/vercel.json` handles SPA routing.
-  Set `VITE_API_URL=https://api.example.com`.
-- **API:** Railway project with Root Directory `apps/api`. Add a web service, a queue worker
-  (`php artisan queue:work --tries=3`), and the scheduler (`php artisan schedule:work`).
-  Run `php artisan migrate --force` as the release command.
-- **Database:** Supabase. Use the session pooler for the API and workers. Migrate from your
+  Set `VITE_API_URL=https://restaurant-pos-api.onrender.com`.
+- **API:** Render free web service from `render.yaml` (Docker, root `apps/api`, health check `/up`).
+  Free services sleep after 15 idle minutes and cannot run workers or cron, so
+  `QUEUE_CONNECTION=sync`. Run `php artisan migrate --force` from your machine against the
+  Supabase database.
+- **Database:** Supabase. Use the session pooler for the API. Migrate from your
   machine or CI, not on container boot.
 - **Storage:** Supabase Storage bucket + S3 access keys; set the `AWS_*` variables above.
 

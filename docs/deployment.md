@@ -5,7 +5,7 @@ The platform deploys as two pieces:
 | Piece | Host | Root directory |
 |---|---|---|
 | React SPA | Vercel | `apps/web` |
-| Laravel API + workers | Railway (or any PHP host) | `apps/api` |
+| Laravel API | Render (free plan) | `apps/api` |
 | PostgreSQL + Storage | Supabase | — |
 
 ## 1. Vercel (web)
@@ -46,43 +46,61 @@ If `VITE_API_URL` is unset, the SPA calls `/api/v1/*` on its own origin. The SPA
 rewrite then returns `index.html`, so login will fail. Deploy the API first, or set
 `VITE_API_URL` as soon as the API has a public URL and redeploy.
 
-## 2. Railway (API)
+## 2. Render (API)
 
-1. Create a Railway project and add a service from the GitHub repository.
-2. Set the service **Root Directory** to `apps/api`.
-3. Add the environment variables below.
-4. Add two more services from the same repository/image:
-   - Worker: `php artisan queue:work --tries=3 --max-time=3600`
-   - Scheduler: `php artisan schedule:work`
-5. Set the release command to `php artisan migrate --force`.
+The API runs as a Docker web service on Render's **free plan**: 512 MB RAM, 0.1 CPU, no card
+required, and no expiry. The trade-offs:
 
-Use a Dockerfile (PHP 8.3 FPM + nginx + supervisor) for reproducible builds and to pin
-`pdo_pgsql`, `pgsql`, `intl`, and `gd`. Nixpacks can work, but requires the same extensions.
+- It spins down after 15 minutes without traffic and takes roughly a minute to wake.
+- One free service per workspace with 750 instance hours per month (enough for a single service).
+- No background workers, cron jobs, persistent disk, or custom domains.
+- Outbound SMTP ports are blocked, so email must go through an HTTP API (Resend, Postmark,
+  Mailgun) rather than SMTP.
 
-`apps/api/Dockerfile` and `apps/api/railway.json` are already in the repository: the image is
-`serversideup/php:8.3-fpm-nginx` (PHP-FPM + nginx in one container), it caches config and views
-at container start (after Railway injects secrets), and the healthcheck is `GET /up`.
+### Blueprint deploy
 
-### CLI walkthrough
+`render.yaml` in the repository root defines the service (`rootDir: apps/api`, Docker, free plan,
+health check `/up`). To create it:
+
+1. Push to GitHub.
+2. In Render, **New → Blueprint**, select `fluffydevam/restaurant-POS-system`.
+3. When prompted, enter the two secret values:
+   - `APP_KEY` — generate with `php artisan key:generate --show`.
+   - `DB_URL` — the Supabase **session pooler** URI.
+4. Apply. Render builds `apps/api/Dockerfile` and serves the API at
+   `https://restaurant-pos-api.onrender.com`.
+
+`config/app.php` falls back to Render's `RENDER_EXTERNAL_URL` when `APP_URL` is unset, so signed
+email-verification URLs are correct without extra configuration.
+
+Because free services cannot run one-off jobs, run migrations from a machine with PHP installed,
+pointing at the production database:
+
+```bash
+cd apps/api
+DB_URL="postgresql://..." php artisan migrate --force
+```
+
+### Before/after deploy notes
+
+- The container caches config and views at start (`AUTORUN_*` env vars in the Dockerfile), after
+  Render injects the environment variables.
+- Route caching stays off: `routes/web.php` uses a closure, which cannot be serialised.
+- `QUEUE_CONNECTION=sync` because there is no worker on the free plan. Move to `database` plus a
+  paid worker service when background jobs are introduced.
+
+### Railway (alternative, not free)
+
+Railway is usage-based. The 30-day trial includes $5 of credit, then a permanent Free plan gives
+about $1 of credit per month, which does not cover an always-on container; the practical floor is
+the $5/month Hobby plan. `apps/api/railway.json` is kept for that case:
 
 ```bash
 cd apps/api
 npx --yes @railway/cli login
 npx --yes @railway/cli init --name restaurant-pos-api
-npx --yes @railway/cli variables --set "APP_ENV=production" --set "APP_DEBUG=false" ...
-npx --yes @railway/cli domain
 npx --yes @railway/cli up --detach
 ```
-
-`railway up` uploads the current directory, builds the Dockerfile on Railway, and deploys it.
-Migrations are intentionally **not** part of container boot; run them once from a machine that
-has PHP installed:
-
-```bash
-npx --yes @railway/cli run php artisan migrate --force
-```
-
-Do not enable route caching: `routes/web.php` uses a closure, which cannot be serialised.
 
 ### Environment variables (API)
 
@@ -91,18 +109,19 @@ APP_NAME="Restaurant POS"
 APP_ENV=production
 APP_DEBUG=false
 APP_KEY=base64:...
-APP_URL=https://api.yourdomain.com
-FRONTEND_URL=https://pos.yourdomain.com
+APP_URL=https://restaurant-pos-api.onrender.com   # optional, RENDER_EXTERNAL_URL is used otherwise
+FRONTEND_URL=https://restaurant-pos-web-five.vercel.app
 
 DB_CONNECTION=pgsql
 DB_URL="postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require"
 
 SESSION_DRIVER=cookie
 CACHE_STORE=database
-QUEUE_CONNECTION=database
+QUEUE_CONNECTION=sync
 
-MAIL_MAILER=...
-MAIL_FROM_ADDRESS=...
+LOG_CHANNEL=stderr
+LOG_LEVEL=info
+MAIL_MAILER=log
 ```
 
 ## 3. Supabase
@@ -117,20 +136,21 @@ MAIL_FROM_ADDRESS=...
 
 - `FRONTEND_URL` on the API must exactly match the deployed web origin (scheme + host).
 - Multiple origins can be comma-separated in `FRONTEND_URL`.
-- Suggested custom domains: `pos.yourdomain.com` (Vercel) and `api.yourdomain.com` (Railway).
+- Suggested custom domains: `pos.yourdomain.com` (Vercel). Render's free plan has no custom
+  domains; use the `onrender.com` URL for the API.
 - Redeploy the SPA after changing `VITE_API_URL`, because Vite embeds it at build time.
 
 ## 5. Smoke test
 
-1. `GET https://api.yourdomain.com/up` returns `200`.
-2. `POST https://api.yourdomain.com/api/v1/auth/login` with the demo account returns a token.
+1. `GET https://restaurant-pos-api.onrender.com/up` returns `200`.
+2. `POST https://restaurant-pos-api.onrender.com/api/v1/auth/login` with the demo account returns a token.
 3. The Vercel URL loads the login page with no CORS errors in the console.
 4. Logging in as an active tenant lands on the dashboard.
 5. Registering a new restaurant lands on the pending-approval screen.
 
 ## 6. Before real users
 
-- [ ] Rotate the Supabase database password and store it only in Railway.
+- [ ] Rotate the Supabase database password and store it only in Render.
 - [ ] `APP_DEBUG=false`, `APP_ENV=production`.
 - [ ] Configure a transactional email provider (Resend/Postmark) and verify the sending domain.
 - [ ] Add Sentry (API + web).
