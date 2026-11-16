@@ -92,6 +92,8 @@ Tests run against in-memory SQLite (`phpunit.xml`) so they never touch the Supab
 
 ## Deployment
 
+See [docs/deployment.md](docs/deployment.md) for the full Vercel + Railway + Supabase setup.
+
 - **Web:** Vercel project with Root Directory `apps/web`. `apps/web/vercel.json` handles SPA routing.
   Set `VITE_API_URL=https://api.example.com`.
 - **API:** Railway project with Root Directory `apps/api`. Add a web service, a queue worker

@@ -6,6 +6,9 @@ dist/
 apps/api/public/build/
 apps/api/public/hot/
 
+# Vercel
+.vercel/
+
 # Environment
 .env
 .env.*
