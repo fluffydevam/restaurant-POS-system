@@ -67,7 +67,21 @@ async function request<T>(
   }
 
   const response = await fetch(`${API_URL}/api/v1${path}`, { ...rest, headers: merged })
-  const data = response.status === 204 ? null : await response.json().catch(() => null)
+
+  if (response.status === 204) {
+    return null as T
+  }
+
+  const contentType = response.headers.get('content-type') ?? ''
+
+  if (!contentType.includes('application/json')) {
+    throw new ApiError(response.status, {
+      message:
+        'The API is not reachable from this deployment. Set VITE_API_URL in Vercel and redeploy.',
+    })
+  }
+
+  const data = await response.json().catch(() => null)
 
   if (!response.ok) {
     throw new ApiError(response.status, (data ?? {}) as Record<string, unknown>)

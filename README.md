@@ -3,6 +3,9 @@
 A multi-tenant, free-forever restaurant POS platform. Anyone can apply for a restaurant
 account; applications are approved manually before the workspace is unlocked.
 
+- **Web (production):** https://restaurant-pos-web-five.vercel.app
+- **API:** not deployed yet (see [docs/deployment.md](docs/deployment.md))
+
 ## Stack
 
 | Layer | Choice |
