@@ -6,6 +6,7 @@ import { useAuth } from './store/auth'
 import { AdminPage } from './pages/AdminPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
+import { MenuPage } from './pages/MenuPage'
 import { PendingPage } from './pages/PendingPage'
 import { RegisterPage } from './pages/RegisterPage'
 
@@ -99,6 +100,14 @@ export default function App() {
               element={
                 <RequireAuth>
                   <PendingPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/menu"
+              element={
+                <RequireAuth>
+                  <MenuPage />
                 </RequireAuth>
               }
             />

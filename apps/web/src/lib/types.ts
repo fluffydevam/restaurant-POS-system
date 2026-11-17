@@ -117,3 +117,50 @@ export interface AdminActionResponse {
   message: string
   tenant: AdminTenant
 }
+
+export interface MenuCategory {
+  id: number
+  name: string
+  description: string | null
+  sort_order: number
+  is_active: boolean
+  items_count?: number
+}
+
+export interface MenuItem {
+  id: number
+  menu_category_id: number | null
+  name: string
+  description: string | null
+  sku: string | null
+  price_cents: number
+  image_url: string | null
+  sort_order: number
+  is_active: boolean
+  is_available: boolean
+}
+
+export interface MenuCategoryPayload {
+  name: string
+  description?: string | null
+  sort_order?: number
+  is_active?: boolean
+}
+
+export interface MenuItemPayload {
+  menu_category_id?: number | null
+  name: string
+  description?: string | null
+  sku?: string | null
+  price_cents: number
+  image_url?: string | null
+  sort_order?: number
+  is_active?: boolean
+  is_available?: boolean
+}
+
+export interface MenuMutationResponse {
+  message: string
+  item?: MenuItem
+  category?: MenuCategory
+}

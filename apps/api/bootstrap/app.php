@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureMembershipRole;
 use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\EnsureTenantIsActive;
 use App\Http\Middleware\ResolveTenant;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tenant' => ResolveTenant::class,
             'tenant.active' => EnsureTenantIsActive::class,
+            'role' => EnsureMembershipRole::class,
             'platform.admin' => EnsurePlatformAdmin::class,
         ]);
     })

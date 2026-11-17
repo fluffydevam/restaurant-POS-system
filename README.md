@@ -96,6 +96,14 @@ Tests run against in-memory SQLite (`phpunit.xml`) so they never touch the Supab
 | POST | `/api/v1/auth/email/verification-notification` | Resend verification |
 | GET | `/api/v1/me` | Current user + memberships |
 | GET | `/api/v1/tenant` | Requires `Authorization` and `X-Tenant-Id` |
+| GET | `/api/v1/menu/categories` | Tenant-scoped menu categories |
+| POST | `/api/v1/menu/categories` | Create category (`owner`/`manager`) |
+| PATCH | `/api/v1/menu/categories/{id}` | Update category (`owner`/`manager`) |
+| DELETE | `/api/v1/menu/categories/{id}` | Delete empty category (`owner`/`manager`) |
+| GET | `/api/v1/menu/items` | Items with `category_id`, `search`, `active`, `per_page` filters |
+| POST | `/api/v1/menu/items` | Create item (`owner`/`manager`), `price_cents` integer |
+| PATCH | `/api/v1/menu/items/{id}` | Update item (`owner`/`manager`) |
+| DELETE | `/api/v1/menu/items/{id}` | Soft-delete item (`owner`/`manager`) |
 | GET | `/api/v1/admin/stats` | Platform admin only: tenant counts by status |
 | GET | `/api/v1/admin/tenants` | Platform admin only: `status`, `search`, `page` filters |
 | POST | `/api/v1/admin/tenants/{id}/approve` | Activates the tenant, provisions a default branch, emails the owner |
@@ -135,5 +143,6 @@ Phase 0 / M1 foundation:
 - [x] React auth flow, pending-approval screen, dashboard shell
 - [x] Feature tests for auth and tenant isolation
 - [x] Platform admin approval queue (`/admin`): approve, suspend, reactivate, owner emails
+- [x] Menu catalog: categories, items, prices in cents, availability flags, `/menu` UI
 - [ ] App-wide tenant switcher (`/t/{slug}` path scheme)
-- [ ] Onboarding wizard, catalog, orders, cash payments
+- [ ] Onboarding wizard, orders, cash payments

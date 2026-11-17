@@ -4,6 +4,11 @@ import type {
   AdminTenant,
   AuthResponse,
   MeResponse,
+  MenuCategory,
+  MenuCategoryPayload,
+  MenuItem,
+  MenuItemPayload,
+  MenuMutationResponse,
   Paginated,
   RegisterPayload,
   TenantContextResponse,
@@ -132,6 +137,56 @@ export const authApi = {
 export function primaryMembership(user: User | null) {
   if (!user) return null
   return user.memberships.find((membership) => membership.is_active) ?? user.memberships[0] ?? null
+}
+
+export const menuApi = {
+  categories(tenantId: number) {
+    return request<MenuCategory[]>('/menu/categories', { tenantId })
+  },
+
+  items(tenantId: number) {
+    return request<Paginated<MenuItem>>('/menu/items?per_page=100', { tenantId })
+  },
+
+  createCategory(tenantId: number, payload: MenuCategoryPayload) {
+    return request<MenuMutationResponse>('/menu/categories', {
+      method: 'POST',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  updateCategory(tenantId: number, id: number, payload: MenuCategoryPayload) {
+    return request<MenuMutationResponse>(`/menu/categories/${id}`, {
+      method: 'PATCH',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  deleteCategory(tenantId: number, id: number) {
+    return request<null>(`/menu/categories/${id}`, { method: 'DELETE', tenantId })
+  },
+
+  createItem(tenantId: number, payload: MenuItemPayload) {
+    return request<MenuMutationResponse>('/menu/items', {
+      method: 'POST',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  updateItem(tenantId: number, id: number, payload: MenuItemPayload) {
+    return request<MenuMutationResponse>(`/menu/items/${id}`, {
+      method: 'PATCH',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  deleteItem(tenantId: number, id: number) {
+    return request<null>(`/menu/items/${id}`, { method: 'DELETE', tenantId })
+  },
 }
 
 export const adminApi = {

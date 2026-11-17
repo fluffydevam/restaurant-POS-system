@@ -161,6 +161,8 @@ MAIL_MAILER=log
 5. Registering a new restaurant lands on the pending-approval screen.
 6. Logging in as `admin@demo.test` lands on `/admin`, where the application can be approved,
    and the owner can then open the workspace.
+7. Logging in as `owner@demo.test` and opening `/menu` shows the seeded categories and seven items;
+   adding and editing an item should persist.
 
 ## 6. Platform admin operations
 

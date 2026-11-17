@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\Auth\MeController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\ResendVerificationController;
 use App\Http\Controllers\Api\V1\Auth\VerifyEmailController;
+use App\Http\Controllers\Api\V1\MenuCategoryController;
+use App\Http\Controllers\Api\V1\MenuItemController;
 use App\Http\Controllers\Api\V1\TenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +28,20 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware(['tenant', 'tenant.active'])->group(function () {
             Route::get('/tenant', [TenantController::class, 'show']);
+
+            Route::prefix('menu')->group(function () {
+                Route::get('/categories', [MenuCategoryController::class, 'index']);
+                Route::get('/items', [MenuItemController::class, 'index']);
+
+                Route::middleware('role:owner,manager')->group(function () {
+                    Route::post('/categories', [MenuCategoryController::class, 'store']);
+                    Route::patch('/categories/{category}', [MenuCategoryController::class, 'update']);
+                    Route::delete('/categories/{category}', [MenuCategoryController::class, 'destroy']);
+                    Route::post('/items', [MenuItemController::class, 'store']);
+                    Route::patch('/items/{item}', [MenuItemController::class, 'update']);
+                    Route::delete('/items/{item}', [MenuItemController::class, 'destroy']);
+                });
+            });
         });
 
         Route::middleware('platform.admin')->prefix('admin')->group(function () {

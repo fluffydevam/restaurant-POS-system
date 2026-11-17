@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Enums\TenantStatus;
+use App\Models\MenuCategory;
+use App\Models\MenuItem;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\TenantContext;
@@ -52,5 +54,49 @@ class DemoSeeder extends Seeder
                 'timezone' => 'Asia/Seoul',
             ]
         );
+
+        $this->seedMenu();
+    }
+
+    private function seedMenu(): void
+    {
+        $menu = [
+            'Coffee' => [
+                ['Americano', 'Espresso with hot water.', 350],
+                ['Cafe Latte', 'Espresso with steamed milk.', 450],
+                ['Vanilla Latte', 'Latte with vanilla syrup.', 500],
+            ],
+            'Pastries' => [
+                ['Butter Croissant', 'Flaky, baked fresh each morning.', 420],
+                ['Blueberry Muffin', 'Soft muffin packed with blueberries.', 380],
+            ],
+            'Kitchen' => [
+                ['Club Sandwich', 'Chicken, bacon, egg, lettuce and tomato.', 950],
+                ['Kimchi Fried Rice', 'Fried rice with kimchi and a fried egg.', 1100],
+            ],
+        ];
+
+        $categorySort = 0;
+
+        foreach ($menu as $categoryName => $items) {
+            $category = MenuCategory::firstOrCreate(
+                ['name' => $categoryName],
+                ['sort_order' => $categorySort++, 'is_active' => true]
+            );
+
+            foreach ($items as $itemSort => [$name, $description, $priceCents]) {
+                MenuItem::firstOrCreate(
+                    ['name' => $name],
+                    [
+                        'menu_category_id' => $category->id,
+                        'description' => $description,
+                        'price_cents' => $priceCents,
+                        'sort_order' => $itemSort,
+                        'is_active' => true,
+                        'is_available' => true,
+                    ]
+                );
+            }
+        }
     }
 }
