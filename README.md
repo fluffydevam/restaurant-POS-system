@@ -55,11 +55,15 @@ The API is expected at `http://localhost:8001` because the Vite dev proxy target
 If you prefer Docker for local Postgres, run `docker compose up -d` from the repository root and
 point `DB_URL` at it instead.
 
-Demo account (created by the seeder):
+Demo accounts (created by the seeders):
 
 ```
-owner@demo.test / password
+owner@demo.test   / password   # owner of Demo Restaurant (active)
+admin@demo.test   / password   # platform admin, no restaurant membership
+pending@demo.test / secret123  # owner of Pending Cafe (waiting for approval)
 ```
+
+The platform admin signs in and lands on `/admin`, the approval queue.
 
 ### Web
 
@@ -92,6 +96,18 @@ Tests run against in-memory SQLite (`phpunit.xml`) so they never touch the Supab
 | POST | `/api/v1/auth/email/verification-notification` | Resend verification |
 | GET | `/api/v1/me` | Current user + memberships |
 | GET | `/api/v1/tenant` | Requires `Authorization` and `X-Tenant-Id` |
+| GET | `/api/v1/admin/stats` | Platform admin only: tenant counts by status |
+| GET | `/api/v1/admin/tenants` | Platform admin only: `status`, `search`, `page` filters |
+| POST | `/api/v1/admin/tenants/{id}/approve` | Activates the tenant, provisions a default branch, emails the owner |
+| POST | `/api/v1/admin/tenants/{id}/suspend` | `reason` is optional; blocks the tenant workspace |
+| POST | `/api/v1/admin/tenants/{id}/reactivate` | Restores workspace access |
+
+Platform admin routes require `users.is_platform_admin`. Seed `AdminSeeder` to create
+`admin@demo.test`, or promote an existing user:
+
+```bash
+php artisan tinker --execute="App\Models\User::where('email','you@example.com')->first()->forceFill(['is_platform_admin' => true])->save();"
+```
 
 ## Deployment
 
@@ -118,5 +134,6 @@ Phase 0 / M1 foundation:
 - [x] Manual approval gate (`pending_approval` tenants cannot use the workspace)
 - [x] React auth flow, pending-approval screen, dashboard shell
 - [x] Feature tests for auth and tenant isolation
-- [ ] Platform admin (Filament) approval queue
+- [x] Platform admin approval queue (`/admin`): approve, suspend, reactivate, owner emails
+- [ ] App-wide tenant switcher (`/t/{slug}` path scheme)
 - [ ] Onboarding wizard, catalog, orders, cash payments

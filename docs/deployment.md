@@ -82,7 +82,8 @@ health check `/up`). To create it:
    (the live deployment is `https://restaurant-pos-api-o7kw.onrender.com`).
 
 `config/app.php` falls back to Render's `RENDER_EXTERNAL_URL` when `APP_URL` is unset, so signed
-email-verification URLs are correct without extra configuration.
+email-verification URLs are correct without extra configuration. `FRONTEND_URL` sets the SPA origin
+used in transactional email links and CORS.
 
 Because free services cannot run one-off jobs, run migrations from a machine with PHP installed,
 pointing at the production database:
@@ -158,12 +159,33 @@ MAIL_MAILER=log
 3. The Vercel URL loads the login page with no CORS errors in the console.
 4. Logging in as an active tenant lands on the dashboard.
 5. Registering a new restaurant lands on the pending-approval screen.
+6. Logging in as `admin@demo.test` lands on `/admin`, where the application can be approved,
+   and the owner can then open the workspace.
 
-## 6. Before real users
+## 6. Platform admin operations
+
+`admin@demo.test` is seeded by `AdminSeeder`; promote a real account with:
+
+```bash
+cd apps/api
+php artisan tinker --execute="App\\Models\\User::where('email','you@example.com')->first()->forceFill(['is_platform_admin' => true])->save();"
+```
+
+- The admin API lives under `/api/v1/admin/*` and is gated by `users.is_platform_admin`
+  (`platform.admin` middleware). Non-admins get `403 platform_admin_required`.
+- Approving a tenant sets it active, provisions a default `Main Branch` when none exists,
+  and notifies the owner via the `mail` channel.
+- With `MAIL_MAILER=log`, those emails only appear in the Render log stream. Wire an HTTP email
+  provider before opening signup to the public.
+- After adding the `is_platform_admin` migration, run it from your machine:
+  `php artisan migrate --force`.
+
+## 7. Before real users
 
 - [ ] Rotate the Supabase database password and store it only in Render.
 - [ ] `APP_DEBUG=false`, `APP_ENV=production`.
 - [ ] Configure a transactional email provider (Resend/Postmark) and verify the sending domain.
 - [ ] Add Sentry (API + web).
 - [ ] Enable Supabase Pro, backups, and a `pg_dump` job.
-- [ ] Build the platform-admin approval queue before opening signup publicly.
+- [x] Build the platform-admin approval queue before opening signup publicly.
+- [ ] Wire a real transactional email provider (approval/suspension emails currently land in logs).
