@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { authApi, primaryMembership } from '../lib/api'
 import { useAuth } from '../store/auth'
 
@@ -31,11 +31,25 @@ export function DashboardPage() {
   if (!membership) {
     return (
       <div className="grid min-h-screen place-items-center px-4">
-        <div className="max-w-sm rounded-2xl border border-white/10 bg-slate-900 p-6 text-center">
-          <h1 className="text-lg font-semibold">No restaurant account</h1>
+        <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-slate-900 p-6 text-center">
+          <h1 className="text-lg font-semibold">
+            {user?.is_platform_admin ? 'Platform admin' : 'No restaurant account'}
+          </h1>
           <p className="mt-2 text-sm text-slate-400">
-            This login is not linked to a restaurant yet.
+            {user?.is_platform_admin
+              ? 'This login manages the platform. Open the approval queue to review applications.'
+              : 'This login is not linked to a restaurant yet.'}
           </p>
+
+          {user?.is_platform_admin ? (
+            <Link
+              to="/admin"
+              className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-300"
+            >
+              Open approval queue
+            </Link>
+          ) : null}
+
           <button
             className="mt-4 text-sm font-medium text-amber-300"
             onClick={() => {
@@ -86,6 +100,15 @@ export function DashboardPage() {
             <div className="flex items-center justify-between rounded-lg bg-amber-400/10 px-3 py-2 text-sm font-medium text-amber-200">
               Dashboard
             </div>
+            {user?.is_platform_admin ? (
+              <Link
+                to="/admin"
+                className="flex items-center justify-between rounded-lg border border-amber-400/20 px-3 py-2 text-sm font-medium text-amber-200 transition hover:bg-amber-400/10"
+              >
+                <span>Platform admin</span>
+                <span className="text-[10px] uppercase tracking-wide">Queue</span>
+              </Link>
+            ) : null}
             {NAV_ITEMS.map((item) => (
               <div
                 key={item.label}

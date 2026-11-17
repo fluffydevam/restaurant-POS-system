@@ -14,6 +14,7 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'email_verified_at' => $this->email_verified_at?->toISOString(),
+            'is_platform_admin' => (bool) $this->is_platform_admin,
             'memberships' => MembershipResource::collection($this->whenLoaded('memberships')),
             'created_at' => $this->created_at?->toISOString(),
         ];

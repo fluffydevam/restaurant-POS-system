@@ -1,8 +1,13 @@
 import type {
+  AdminActionResponse,
+  AdminStats,
+  AdminTenant,
   AuthResponse,
   MeResponse,
+  Paginated,
   RegisterPayload,
   TenantContextResponse,
+  TenantStatus,
   User,
 } from './types'
 
@@ -127,4 +132,37 @@ export const authApi = {
 export function primaryMembership(user: User | null) {
   if (!user) return null
   return user.memberships.find((membership) => membership.is_active) ?? user.memberships[0] ?? null
+}
+
+export const adminApi = {
+  stats() {
+    return request<AdminStats>('/admin/stats')
+  },
+
+  tenants(params: { status?: TenantStatus; search?: string; page?: number } = {}) {
+    const query = new URLSearchParams()
+
+    if (params.status) query.set('status', params.status)
+    if (params.search) query.set('search', params.search)
+    if (params.page && params.page > 1) query.set('page', String(params.page))
+
+    const suffix = query.toString()
+
+    return request<Paginated<AdminTenant>>(`/admin/tenants${suffix ? `?${suffix}` : ''}`)
+  },
+
+  approve(tenantId: number) {
+    return request<AdminActionResponse>(`/admin/tenants/${tenantId}/approve`, { method: 'POST' })
+  },
+
+  suspend(tenantId: number, reason: string) {
+    return request<AdminActionResponse>(`/admin/tenants/${tenantId}/suspend`, {
+      method: 'POST',
+      body: JSON.stringify({ reason: reason || null }),
+    })
+  },
+
+  reactivate(tenantId: number) {
+    return request<AdminActionResponse>(`/admin/tenants/${tenantId}/reactivate`, { method: 'POST' })
+  },
 }

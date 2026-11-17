@@ -24,6 +24,12 @@ export function LoginPage() {
       setSession(response.token, response.user)
 
       const membership = response.user.memberships[0]
+
+      if (response.user.is_platform_admin && !membership) {
+        navigate('/admin', { replace: true })
+        return
+      }
+
       navigate(membership?.tenant.status === 'active' ? '/' : '/pending', { replace: true })
     } catch (requestError) {
       setError(errorMessage(requestError))

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\AdminTenantController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\MeController;
@@ -25,6 +26,14 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware(['tenant', 'tenant.active'])->group(function () {
             Route::get('/tenant', [TenantController::class, 'show']);
+        });
+
+        Route::middleware('platform.admin')->prefix('admin')->group(function () {
+            Route::get('/stats', [AdminTenantController::class, 'stats']);
+            Route::get('/tenants', [AdminTenantController::class, 'index']);
+            Route::post('/tenants/{tenant}/approve', [AdminTenantController::class, 'approve']);
+            Route::post('/tenants/{tenant}/suspend', [AdminTenantController::class, 'suspend']);
+            Route::post('/tenants/{tenant}/reactivate', [AdminTenantController::class, 'reactivate']);
         });
     });
 });
