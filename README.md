@@ -4,7 +4,7 @@ A multi-tenant, free-forever restaurant POS platform. Anyone can apply for a res
 account; applications are approved manually before the workspace is unlocked.
 
 - **Web (production):** https://restaurant-pos-web-five.vercel.app
-- **API:** not deployed yet (see [docs/deployment.md](docs/deployment.md))
+- **API (production):** https://restaurant-pos-api-o7kw.onrender.com (free plan, cold starts after idle)
 
 ## Stack
 
@@ -98,7 +98,7 @@ Tests run against in-memory SQLite (`phpunit.xml`) so they never touch the Supab
 See [docs/deployment.md](docs/deployment.md) for the full Vercel + Render + Supabase setup.
 
 - **Web:** Vercel project with Root Directory `apps/web`. `apps/web/vercel.json` handles SPA routing.
-  Set `VITE_API_URL=https://restaurant-pos-api.onrender.com`.
+  Set `VITE_API_URL=https://restaurant-pos-api-o7kw.onrender.com`.
 - **API:** Render free web service from `render.yaml` (Docker, root `apps/api`, health check `/up`).
   Free services sleep after 15 idle minutes and cannot run workers or cron, so
   `QUEUE_CONNECTION=sync`. Run `php artisan migrate --force` from your machine against the

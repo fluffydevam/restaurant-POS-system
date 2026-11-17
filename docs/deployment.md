@@ -8,6 +8,16 @@ The platform deploys as two pieces:
 | Laravel API | Render (free plan) | `apps/api` |
 | PostgreSQL + Storage | Supabase | — |
 
+## Live deployment
+
+| Piece | URL | Project |
+|---|---|---|
+| Web | https://restaurant-pos-web-five.vercel.app | Vercel `my-project-a76a/restaurant-pos-web`, root `apps/web` |
+| API | https://restaurant-pos-api-o7kw.onrender.com | Render Blueprint `exs-dbtps5rl550s7390aqng`, service `restaurant-pos-api`, free plan, Singapore |
+| Database | Supabase `ssifoqpcwclrbpwvauku` | Session pooler, `aws-1-ap-northeast-2` |
+
+The web app reads `VITE_API_URL` at build time, so changing the API origin requires a redeploy.
+
 ## 1. Vercel (web)
 
 ### Option A — Git integration (recommended)
@@ -67,8 +77,9 @@ health check `/up`). To create it:
 3. When prompted, enter the two secret values:
    - `APP_KEY` — generate with `php artisan key:generate --show`.
    - `DB_URL` — the Supabase **session pooler** URI.
-4. Apply. Render builds `apps/api/Dockerfile` and serves the API at
-   `https://restaurant-pos-api.onrender.com`.
+4. Apply. Render builds `apps/api/Dockerfile` and serves the API at an `onrender.com` URL.
+   Service names are globally unique: if `restaurant-pos-api` is taken, Render appends a suffix
+   (the live deployment is `https://restaurant-pos-api-o7kw.onrender.com`).
 
 `config/app.php` falls back to Render's `RENDER_EXTERNAL_URL` when `APP_URL` is unset, so signed
 email-verification URLs are correct without extra configuration.
@@ -109,7 +120,7 @@ APP_NAME="Restaurant POS"
 APP_ENV=production
 APP_DEBUG=false
 APP_KEY=base64:...
-APP_URL=https://restaurant-pos-api.onrender.com   # optional, RENDER_EXTERNAL_URL is used otherwise
+APP_URL=https://restaurant-pos-api-o7kw.onrender.com   # optional, RENDER_EXTERNAL_URL is used otherwise
 FRONTEND_URL=https://restaurant-pos-web-five.vercel.app
 
 DB_CONNECTION=pgsql
@@ -142,8 +153,8 @@ MAIL_MAILER=log
 
 ## 5. Smoke test
 
-1. `GET https://restaurant-pos-api.onrender.com/up` returns `200`.
-2. `POST https://restaurant-pos-api.onrender.com/api/v1/auth/login` with the demo account returns a token.
+1. `GET https://restaurant-pos-api-o7kw.onrender.com/up` returns `200`.
+2. `POST https://restaurant-pos-api-o7kw.onrender.com/api/v1/auth/login` with the demo account returns a token.
 3. The Vercel URL loads the login page with no CORS errors in the console.
 4. Logging in as an active tenant lands on the dashboard.
 5. Registering a new restaurant lands on the pending-approval screen.
