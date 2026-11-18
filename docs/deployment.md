@@ -168,6 +168,8 @@ MAIL_MAILER=log
 9. `/settings` saves the restaurant profile, receipt footer, and branch details. Enable a service
    charge and tax, then ring up a new order: `/pos`, the receipt, and `/orders` detail should show
    both charge lines. Existing orders keep their original totals.
+10. `/t/demo` opens the demo workspace, `/t/demo/pos` the register, and a legacy `/pos` link redirects
+    to `/t/demo/pos`. A slug you do not belong to shows the workspace picker.
 
 ## 6. Platform admin operations
 

@@ -6,6 +6,7 @@ import { WorkspaceLayout } from '../components/WorkspaceLayout'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { authApi, errorMessage } from '../lib/api'
 import { basisPointsToPercent } from '../lib/totals'
+import { useWorkspaceBase } from '../lib/workspace'
 import type { Branch, Tenant } from '../lib/types'
 
 export function SettingsPage() {
@@ -57,6 +58,7 @@ function SettingsForm({
   canManage: boolean
 }) {
   const queryClient = useQueryClient()
+  const base = useWorkspaceBase()
 
   const [name, setName] = useState(tenant.name)
   const [phone, setPhone] = useState(tenant.settings?.phone ?? '')
@@ -139,7 +141,7 @@ function SettingsForm({
           </span>
           {!onboardingComplete && canManage ? (
             <Link
-              to="/onboarding"
+              to={`${base}/onboarding`}
               className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-white/5"
             >
               Open wizard

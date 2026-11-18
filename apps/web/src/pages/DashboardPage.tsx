@@ -4,9 +4,10 @@ import { WorkspaceLayout } from '../components/WorkspaceLayout'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { orderApi } from '../lib/api'
 import { formatMoney } from '../lib/money'
+import { workspacePath } from '../lib/workspace'
 
 export function DashboardPage() {
-  const { user, clear, membership, tenant, tenantId, branches, isLoading } = useWorkspace()
+  const { user, clear, membership, tenant, tenantId, slug, branches, isLoading } = useWorkspace()
   const navigate = useNavigate()
 
   const summary = useQuery({
@@ -96,7 +97,7 @@ export function DashboardPage() {
               </p>
             </div>
             <Link
-              to="/onboarding"
+              to={workspacePath(slug, 'onboarding')}
               className="rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-300"
             >
               Continue setup

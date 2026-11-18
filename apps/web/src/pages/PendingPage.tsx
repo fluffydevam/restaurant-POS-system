@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { authApi, errorMessage, primaryMembership } from '../lib/api'
+import { activeMemberships, pendingMembership, workspacePath } from '../lib/workspace'
 import { useAuth } from '../store/auth'
 import { AuthLayout } from '../components/AuthLayout'
 import { Button, FormError } from '../components/Form'
@@ -14,11 +15,13 @@ export function PendingPage() {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
-  const membership = primaryMembership(user)
+  const active = activeMemberships(user)[0]
 
-  if (membership?.tenant.status === 'active') {
-    return <Navigate to="/" replace />
+  if (active) {
+    return <Navigate to={workspacePath(active.tenant.slug)} replace />
   }
+
+  const membership = pendingMembership(user) ?? primaryMembership(user)
 
   async function resendVerification() {
     setBusy(true)

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi, errorMessage } from '../lib/api'
 import { useAuth } from '../store/auth'
+import { activeMemberships, pendingMembership, workspacePath } from '../lib/workspace'
 import { AuthLayout } from '../components/AuthLayout'
 import { Button, Field, FormError, Input } from '../components/Form'
 
@@ -23,14 +24,15 @@ export function LoginPage() {
       const response = await authApi.login(email, password)
       setSession(response.token, response.user)
 
-      const membership = response.user.memberships[0]
+      const membership = activeMemberships(response.user)[0]
+      const pending = pendingMembership(response.user)
 
-      if (response.user.is_platform_admin && !membership) {
+      if (response.user.is_platform_admin && !membership && !pending) {
         navigate('/admin', { replace: true })
         return
       }
 
-      navigate(membership?.tenant.status === 'active' ? '/' : '/pending', { replace: true })
+      navigate(membership ? workspacePath(membership.tenant.slug) : '/pending', { replace: true })
     } catch (requestError) {
       setError(errorMessage(requestError))
     } finally {

@@ -6,6 +6,7 @@ import { WorkspaceLayout } from '../components/WorkspaceLayout'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { authApi, errorMessage } from '../lib/api'
 import { basisPointsToPercent } from '../lib/totals'
+import { useWorkspaceBase } from '../lib/workspace'
 
 const STEPS = ['Profile', 'Charges', 'Branch', 'Review']
 
@@ -91,6 +92,7 @@ function OnboardingWizard({
 }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const base = useWorkspaceBase()
   const [step, setStep] = useState(0)
   const [draft, setDraft] = useState<Draft>(initial)
   const [error, setError] = useState<string | null>(null)
@@ -127,7 +129,7 @@ function OnboardingWizard({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tenant', tenantId] })
-      navigate('/', { replace: true })
+      navigate(base || '/', { replace: true })
     },
     onError: (requestError) => setError(errorMessage(requestError)),
   })
@@ -320,7 +322,7 @@ function OnboardingWizard({
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
           <button
             type="button"
-            onClick={() => (step === 0 ? navigate('/') : setStep((current) => current - 1))}
+            onClick={() => (step === 0 ? navigate(base || '/') : setStep((current) => current - 1))}
             className="text-sm text-slate-400 hover:text-white"
           >
             {step === 0 ? 'Skip for now' : 'Back'}
@@ -353,7 +355,7 @@ function OnboardingWizard({
       </div>
 
       <p className="text-center text-xs text-slate-500">
-        Need the long version? <Link to="/settings" className="text-amber-300">Open settings</Link>
+        Need the long version? <Link to={`${base}/settings`} className="text-amber-300">Open settings</Link>
       </p>
     </div>
   )

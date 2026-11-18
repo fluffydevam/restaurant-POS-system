@@ -65,6 +65,17 @@ pending@demo.test / secret123  # owner of Pending Cafe (waiting for approval)
 
 The platform admin signs in and lands on `/admin`, the approval queue.
 
+### Workspace URLs
+
+Every workspace lives under its restaurant slug, for example `/t/demo`, `/t/demo/pos`, and
+`/t/demo/settings`. Links can be shared with anyone who belongs to that restaurant. Visiting a slug
+you do not belong to shows a workspace picker instead of leaking data.
+
+Legacy paths (`/`, `/pos`, `/orders`, `/menu`, `/settings`, `/onboarding`) redirect to the remembered
+workspace, so old bookmarks keep working. When a user belongs to more than one active restaurant, an
+in-app switcher appears in the sidebar and header, and the last used workspace is remembered across
+sessions. Pending applications remain on `/pending` until approved.
+
 ### Web
 
 ```bash
@@ -156,5 +167,5 @@ Phase 0 / M1 foundation:
 - [x] Order ledger: filters, daily summary, detail view, void open orders
 - [x] Settings (`/settings`) and a four-step onboarding wizard (`/onboarding`)
 - [x] Tax and service charge configured in basis points, applied to new orders and receipts
-- [ ] App-wide tenant switcher (`/t/{slug}` path scheme)
+- [x] Slug-based workspace URLs (`/t/{slug}`), legacy redirects, and a multi-restaurant switcher
 - [ ] Tables and staff role management
