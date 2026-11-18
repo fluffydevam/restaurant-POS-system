@@ -6,6 +6,7 @@ import { WorkspaceLayout } from '../components/WorkspaceLayout'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { errorMessage, menuApi, orderApi } from '../lib/api'
 import { formatMoney, formatTime } from '../lib/money'
+import { basisPointsToPercent, calculateTotals } from '../lib/totals'
 import type { MenuItem, Order, OrderType } from '../lib/types'
 
 const ORDER_TYPES: { value: OrderType; label: string }[] = [
@@ -52,7 +53,9 @@ export function PosPage() {
     [allItems, cart],
   )
 
-  const totalCents = cartLines.reduce((sum, line) => sum + line.item.price_cents * line.quantity, 0)
+  const subtotalCents = cartLines.reduce((sum, line) => sum + line.item.price_cents * line.quantity, 0)
+  const totals = calculateTotals(subtotalCents, tenant?.settings)
+  const totalCents = totals.totalCents
   const itemCount = cartLines.reduce((sum, line) => sum + line.quantity, 0)
 
   const term = search.trim().toLowerCase()
@@ -330,8 +333,30 @@ export function PosPage() {
             <div className="mt-4 space-y-1.5 border-t border-white/10 pt-4 text-sm">
               <div className="flex justify-between text-slate-400">
                 <span>Subtotal</span>
-                <span>{formatMoney(totalCents, currency)}</span>
+                <span>{formatMoney(totals.subtotalCents, currency)}</span>
               </div>
+              {totals.serviceChargeCents > 0 ? (
+                <div className="flex justify-between text-slate-400">
+                  <span>
+                    Service charge
+                    {tenant.settings?.service_charge?.enabled
+                      ? ` (${basisPointsToPercent(tenant.settings.service_charge.rate_bps)}%)`
+                      : ''}
+                  </span>
+                  <span>{formatMoney(totals.serviceChargeCents, currency)}</span>
+                </div>
+              ) : null}
+              {totals.taxCents > 0 ? (
+                <div className="flex justify-between text-slate-400">
+                  <span>
+                    Tax
+                    {tenant.settings?.tax?.enabled
+                      ? ` (${basisPointsToPercent(tenant.settings.tax.rate_bps)}%)`
+                      : ''}
+                  </span>
+                  <span>{formatMoney(totals.taxCents, currency)}</span>
+                </div>
+              ) : null}
               <div className="flex justify-between text-base font-semibold">
                 <span>Total</span>
                 <span className="text-amber-300">{formatMoney(totalCents, currency)}</span>
@@ -452,6 +477,22 @@ export function PosPage() {
                 <dd>{receipt.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0}</dd>
               </div>
               <div className="flex justify-between">
+                <dt className="text-slate-400">Subtotal</dt>
+                <dd>{formatMoney(receipt.subtotal_cents, currency)}</dd>
+              </div>
+              {receipt.service_charge_cents > 0 ? (
+                <div className="flex justify-between">
+                  <dt className="text-slate-400">Service charge</dt>
+                  <dd>{formatMoney(receipt.service_charge_cents, currency)}</dd>
+                </div>
+              ) : null}
+              {receipt.tax_cents > 0 ? (
+                <div className="flex justify-between">
+                  <dt className="text-slate-400">Tax</dt>
+                  <dd>{formatMoney(receipt.tax_cents, currency)}</dd>
+                </div>
+              ) : null}
+              <div className="flex justify-between border-t border-white/10 pt-2">
                 <dt className="text-slate-400">Total</dt>
                 <dd>{formatMoney(receipt.total_cents, currency)}</dd>
               </div>
@@ -464,6 +505,10 @@ export function PosPage() {
                 <dd className="text-amber-300">{formatMoney(receipt.change_cents, currency)}</dd>
               </div>
             </dl>
+
+            {tenant.settings?.receipt_footer ? (
+              <p className="mt-4 text-xs text-slate-400">{tenant.settings.receipt_footer}</p>
+            ) : null}
 
             <Button type="button" className="mt-5 w-full" onClick={() => setReceipt(null)}>
               New order

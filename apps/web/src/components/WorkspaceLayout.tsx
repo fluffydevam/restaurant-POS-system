@@ -4,7 +4,7 @@ import { authApi } from '../lib/api'
 import { useAuth } from '../store/auth'
 import type { Branch, Membership, Tenant, User } from '../lib/types'
 
-type ActiveNav = 'dashboard' | 'pos' | 'orders' | 'menu'
+type ActiveNav = 'dashboard' | 'pos' | 'orders' | 'menu' | 'settings'
 
 export function WorkspaceLayout({
   user,
@@ -56,7 +56,7 @@ export function WorkspaceLayout({
             <NavLink to="/pos" label="Point of sale" isActive={active === 'pos'} hint="Register" />
             <NavLink to="/orders" label="Orders" isActive={active === 'orders'} />
             <NavLink to="/menu" label="Menu" isActive={active === 'menu'} hint="Catalog" />
-            {['Tables', 'Staff', 'Settings'].map((label) => (
+            {['Tables', 'Staff'].map((label) => (
               <div
                 key={label}
                 className="flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-500"
@@ -66,6 +66,7 @@ export function WorkspaceLayout({
                 <span className="text-[10px] uppercase tracking-wide">Soon</span>
               </div>
             ))}
+            <NavLink to="/settings" label="Settings" isActive={active === 'settings'} />
             {user?.is_platform_admin ? (
               <Link
                 to="/admin"

@@ -9,6 +9,21 @@ export interface Branch {
   is_active: boolean
 }
 
+export interface ChargeSetting {
+  enabled: boolean
+  rate_bps: number
+}
+
+export interface TenantSettings {
+  restaurant_type?: string
+  phone?: string | null
+  receipt_footer?: string | null
+  tax?: ChargeSetting
+  service_charge?: ChargeSetting
+  onboarding?: { completed: boolean; completed_at?: string | null }
+  [key: string]: unknown
+}
+
 export interface Tenant {
   id: number
   name: string
@@ -18,7 +33,7 @@ export interface Tenant {
   country: string | null
   timezone: string
   currency: string
-  settings: Record<string, unknown> | null
+  settings: TenantSettings | null
   approved_at: string | null
   branches?: Branch[]
 }
@@ -190,6 +205,7 @@ export interface Order {
   notes: string | null
   subtotal_cents: number
   discount_cents: number
+  service_charge_cents: number
   tax_cents: number
   total_cents: number
   amount_paid_cents: number
@@ -224,4 +240,25 @@ export interface CreateOrderPayload {
   customer_name?: string | null
   notes?: string | null
   items: { menu_item_id: number; quantity: number; notes?: string | null }[]
+}
+
+export interface TenantUpdatePayload {
+  name?: string
+  country?: string | null
+  timezone?: string
+  currency?: string
+  phone?: string | null
+  receipt_footer?: string | null
+  tax_enabled?: boolean
+  tax_rate?: number
+  service_charge_enabled?: boolean
+  service_charge_rate?: number
+  onboarding_completed?: boolean
+}
+
+export interface BranchUpdatePayload {
+  name?: string
+  address?: string | null
+  timezone?: string | null
+  is_active?: boolean
 }

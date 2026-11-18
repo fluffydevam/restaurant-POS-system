@@ -314,6 +314,15 @@ export function OrdersPage() {
 
                 <dl className="mt-4 space-y-1.5 border-t border-white/10 pt-4 text-sm">
                   <Row label="Subtotal" value={formatMoney(current.subtotal_cents, currency)} />
+                  {current.service_charge_cents > 0 ? (
+                    <Row
+                      label="Service charge"
+                      value={formatMoney(current.service_charge_cents, currency)}
+                    />
+                  ) : null}
+                  {current.tax_cents > 0 ? (
+                    <Row label="Tax" value={formatMoney(current.tax_cents, currency)} />
+                  ) : null}
                   <Row label="Total" value={formatMoney(current.total_cents, currency)} strong />
                   {current.status === 'completed' ? (
                     <>

@@ -7,10 +7,12 @@ import { AdminPage } from './pages/AdminPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
 import { MenuPage } from './pages/MenuPage'
+import { OnboardingPage } from './pages/OnboardingPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { PendingPage } from './pages/PendingPage'
 import { PosPage } from './pages/PosPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { SettingsPage } from './pages/SettingsPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -126,6 +128,22 @@ export default function App() {
               element={
                 <RequireAuth>
                   <OrdersPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <RequireAuth>
+                  <SettingsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/onboarding"
+              element={
+                <RequireAuth>
+                  <OnboardingPage />
                 </RequireAuth>
               }
             />

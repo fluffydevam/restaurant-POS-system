@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { WorkspaceLayout } from '../components/WorkspaceLayout'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { orderApi } from '../lib/api'
@@ -84,6 +84,25 @@ export function DashboardPage() {
             are the next milestones.
           </p>
         </section>
+
+        {tenant.settings?.onboarding?.completed !== true &&
+        (membership?.role === 'owner' || membership?.role === 'manager') ? (
+          <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-400/30 bg-amber-400/5 p-5">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-amber-300">Setup incomplete</p>
+              <h3 className="mt-1 text-base font-semibold">Finish setting up your restaurant</h3>
+              <p className="mt-1 text-sm text-slate-400">
+                Add your contact details, charges, receipt footer, and branch information.
+              </p>
+            </div>
+            <Link
+              to="/onboarding"
+              className="rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-300"
+            >
+              Continue setup
+            </Link>
+          </section>
+        ) : null}
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Stat label="Orders today" value={String(summary.data?.orders_today ?? 0)} />

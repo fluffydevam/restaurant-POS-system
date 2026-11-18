@@ -165,6 +165,9 @@ MAIL_MAILER=log
    adding and editing an item should persist.
 8. Opening `/pos`, adding items and completing a cash sale creates an order; `/orders` lists it with
    the correct change and today's totals on `/`.
+9. `/settings` saves the restaurant profile, receipt footer, and branch details. Enable a service
+   charge and tax, then ring up a new order: `/pos`, the receipt, and `/orders` detail should show
+   both charge lines. Existing orders keep their original totals.
 
 ## 6. Platform admin operations
 

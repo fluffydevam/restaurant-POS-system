@@ -157,8 +157,20 @@ class OrderController extends Controller
         }
 
         $subtotal = array_sum(array_column($lines, 'line_total_cents'));
+        $settings = app(TenantContext::class)->tenant()?->settings ?? [];
 
-        $order = DB::transaction(function () use ($validated, $lines, $subtotal, $tenantId, $request): Order {
+        $serviceRate = ($settings['service_charge']['enabled'] ?? false)
+            ? (int) ($settings['service_charge']['rate_bps'] ?? 0)
+            : 0;
+        $taxRate = ($settings['tax']['enabled'] ?? false)
+            ? (int) ($settings['tax']['rate_bps'] ?? 0)
+            : 0;
+
+        $serviceCharge = (int) round($subtotal * $serviceRate / 10000);
+        $tax = (int) round(($subtotal + $serviceCharge) * $taxRate / 10000);
+        $total = $subtotal + $serviceCharge + $tax;
+
+        $order = DB::transaction(function () use ($validated, $lines, $subtotal, $serviceCharge, $tax, $total, $tenantId, $request): Order {
             $branchId = $validated['branch_id']
                 ?? Branch::query()->where('is_default', true)->value('id')
                 ?? Branch::query()->value('id');
@@ -182,8 +194,9 @@ class OrderController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 'subtotal_cents' => $subtotal,
                 'discount_cents' => 0,
-                'tax_cents' => 0,
-                'total_cents' => $subtotal,
+                'service_charge_cents' => $serviceCharge,
+                'tax_cents' => $tax,
+                'total_cents' => $total,
                 'amount_paid_cents' => 0,
                 'change_cents' => 0,
                 'placed_at' => now(),

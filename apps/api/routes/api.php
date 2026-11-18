@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Auth\MeController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\ResendVerificationController;
 use App\Http\Controllers\Api\V1\Auth\VerifyEmailController;
+use App\Http\Controllers\Api\V1\BranchController;
 use App\Http\Controllers\Api\V1\MenuCategoryController;
 use App\Http\Controllers\Api\V1\MenuItemController;
 use App\Http\Controllers\Api\V1\OrderController;
@@ -29,6 +30,11 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware(['tenant', 'tenant.active'])->group(function () {
             Route::get('/tenant', [TenantController::class, 'show']);
+
+            Route::middleware('role:owner,manager')->group(function () {
+                Route::patch('/tenant', [TenantController::class, 'update']);
+                Route::patch('/branches/{branch}', [BranchController::class, 'update'])->whereNumber('branch');
+            });
 
             Route::prefix('menu')->group(function () {
                 Route::get('/categories', [MenuCategoryController::class, 'index']);

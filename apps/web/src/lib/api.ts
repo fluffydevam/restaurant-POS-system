@@ -3,6 +3,8 @@ import type {
   AdminStats,
   AdminTenant,
   AuthResponse,
+  Branch,
+  BranchUpdatePayload,
   MeResponse,
   MenuCategory,
   MenuCategoryPayload,
@@ -18,6 +20,7 @@ import type {
   RegisterPayload,
   TenantContextResponse,
   TenantStatus,
+  TenantUpdatePayload,
   User,
 } from './types'
 
@@ -130,6 +133,22 @@ export const authApi = {
 
   tenant(tenantId: number) {
     return request<TenantContextResponse>('/tenant', { tenantId })
+  },
+
+  updateTenant(tenantId: number, payload: TenantUpdatePayload) {
+    return request<{ message: string; tenant: TenantContextResponse['tenant'] }>('/tenant', {
+      method: 'PATCH',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  updateBranch(tenantId: number, branchId: number, payload: BranchUpdatePayload) {
+    return request<{ message: string; branch: Branch }>(`/branches/${branchId}`, {
+      method: 'PATCH',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
   },
 
   resendVerification() {

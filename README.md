@@ -96,6 +96,8 @@ Tests run against in-memory SQLite (`phpunit.xml`) so they never touch the Supab
 | POST | `/api/v1/auth/email/verification-notification` | Resend verification |
 | GET | `/api/v1/me` | Current user + memberships |
 | GET | `/api/v1/tenant` | Requires `Authorization` and `X-Tenant-Id` |
+| PATCH | `/api/v1/tenant` | Profile, currency, tax/service charges, receipt footer (`owner`/`manager`) |
+| PATCH | `/api/v1/branches/{id}` | Branch name, address, timezone, active flag (`owner`/`manager`) |
 | GET | `/api/v1/menu/categories` | Tenant-scoped menu categories |
 | POST | `/api/v1/menu/categories` | Create category (`owner`/`manager`) |
 | PATCH | `/api/v1/menu/categories/{id}` | Update category (`owner`/`manager`) |
@@ -152,5 +154,7 @@ Phase 0 / M1 foundation:
 - [x] Menu catalog: categories, items, prices in cents, availability flags, `/menu` UI
 - [x] Point of sale: cart, order types, cash payment with change, receipt
 - [x] Order ledger: filters, daily summary, detail view, void open orders
+- [x] Settings (`/settings`) and a four-step onboarding wizard (`/onboarding`)
+- [x] Tax and service charge configured in basis points, applied to new orders and receipts
 - [ ] App-wide tenant switcher (`/t/{slug}` path scheme)
-- [ ] Onboarding wizard, tables, staff roles, settings
+- [ ] Tables and staff role management

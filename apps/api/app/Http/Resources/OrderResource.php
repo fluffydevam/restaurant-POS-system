@@ -20,6 +20,7 @@ class OrderResource extends JsonResource
             'notes' => $this->notes,
             'subtotal_cents' => $this->subtotal_cents,
             'discount_cents' => $this->discount_cents,
+            'service_charge_cents' => $this->service_charge_cents,
             'tax_cents' => $this->tax_cents,
             'total_cents' => $this->total_cents,
             'amount_paid_cents' => $this->amount_paid_cents,
