@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\Auth\ResendVerificationController;
 use App\Http\Controllers\Api\V1\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\V1\MenuCategoryController;
 use App\Http\Controllers\Api\V1\MenuItemController;
+use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\TenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +41,21 @@ Route::prefix('v1')->group(function () {
                     Route::post('/items', [MenuItemController::class, 'store']);
                     Route::patch('/items/{item}', [MenuItemController::class, 'update']);
                     Route::delete('/items/{item}', [MenuItemController::class, 'destroy']);
+                });
+            });
+
+            Route::prefix('orders')->group(function () {
+                Route::get('/', [OrderController::class, 'index']);
+                Route::get('/summary', [OrderController::class, 'summary']);
+                Route::get('/{order}', [OrderController::class, 'show'])->whereNumber('order');
+
+                Route::middleware('role:owner,manager,staff')->group(function () {
+                    Route::post('/', [OrderController::class, 'store']);
+                    Route::post('/{order}/pay', [OrderController::class, 'pay'])->whereNumber('order');
+                });
+
+                Route::middleware('role:owner,manager')->group(function () {
+                    Route::post('/{order}/void', [OrderController::class, 'void'])->whereNumber('order');
                 });
             });
         });

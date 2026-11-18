@@ -104,6 +104,12 @@ Tests run against in-memory SQLite (`phpunit.xml`) so they never touch the Supab
 | POST | `/api/v1/menu/items` | Create item (`owner`/`manager`), `price_cents` integer |
 | PATCH | `/api/v1/menu/items/{id}` | Update item (`owner`/`manager`) |
 | DELETE | `/api/v1/menu/items/{id}` | Soft-delete item (`owner`/`manager`) |
+| GET | `/api/v1/orders` | Order history with `status`, `date`, `search`, `page` |
+| GET | `/api/v1/orders/summary` | Today's sales, order count, open orders, average |
+| GET | `/api/v1/orders/{id}` | Order detail with line-item snapshots |
+| POST | `/api/v1/orders` | Open an order from menu item IDs (`owner`/`manager`/`staff`) |
+| POST | `/api/v1/orders/{id}/pay` | Cash payment; records tendered and change |
+| POST | `/api/v1/orders/{id}/void` | Void an open order (`owner`/`manager`) |
 | GET | `/api/v1/admin/stats` | Platform admin only: tenant counts by status |
 | GET | `/api/v1/admin/tenants` | Platform admin only: `status`, `search`, `page` filters |
 | POST | `/api/v1/admin/tenants/{id}/approve` | Activates the tenant, provisions a default branch, emails the owner |
@@ -144,5 +150,7 @@ Phase 0 / M1 foundation:
 - [x] Feature tests for auth and tenant isolation
 - [x] Platform admin approval queue (`/admin`): approve, suspend, reactivate, owner emails
 - [x] Menu catalog: categories, items, prices in cents, availability flags, `/menu` UI
+- [x] Point of sale: cart, order types, cash payment with change, receipt
+- [x] Order ledger: filters, daily summary, detail view, void open orders
 - [ ] App-wide tenant switcher (`/t/{slug}` path scheme)
-- [ ] Onboarding wizard, orders, cash payments
+- [ ] Onboarding wizard, tables, staff roles, settings

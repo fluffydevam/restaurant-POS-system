@@ -5,6 +5,7 @@ import { Button, Field, FormError, Input, Select } from '../components/Form'
 import { WorkspaceLayout } from '../components/WorkspaceLayout'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { errorMessage, menuApi } from '../lib/api'
+import { formatMoney } from '../lib/money'
 import type { MenuCategory, MenuCategoryPayload, MenuItem, MenuItemPayload } from '../lib/types'
 
 type CategoryFilter = 'all' | 'uncategorized' | number
@@ -699,10 +700,3 @@ function Checkbox({
   )
 }
 
-function formatMoney(cents: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(cents / 100)
-  } catch {
-    return (cents / 100).toFixed(2)
-  }
-}

@@ -9,6 +9,11 @@ import type {
   MenuItem,
   MenuItemPayload,
   MenuMutationResponse,
+  CreateOrderPayload,
+  Order,
+  OrderMutationResponse,
+  OrderStatus,
+  OrderSummary,
   Paginated,
   RegisterPayload,
   TenantContextResponse,
@@ -186,6 +191,55 @@ export const menuApi = {
 
   deleteItem(tenantId: number, id: number) {
     return request<null>(`/menu/items/${id}`, { method: 'DELETE', tenantId })
+  },
+}
+
+export const orderApi = {
+  summary(tenantId: number) {
+    return request<OrderSummary>('/orders/summary', { tenantId })
+  },
+
+  list(
+    tenantId: number,
+    params: { status?: OrderStatus; date?: string; search?: string; page?: number } = {},
+  ) {
+    const query = new URLSearchParams()
+
+    if (params.status) query.set('status', params.status)
+    if (params.date) query.set('date', params.date)
+    if (params.search) query.set('search', params.search)
+    if (params.page && params.page > 1) query.set('page', String(params.page))
+
+    const suffix = query.toString()
+
+    return request<Paginated<Order>>(`/orders${suffix ? `?${suffix}` : ''}`, { tenantId })
+  },
+
+  show(tenantId: number, orderId: number) {
+    return request<{ order: Order }>(`/orders/${orderId}`, { tenantId })
+  },
+
+  create(tenantId: number, payload: CreateOrderPayload) {
+    return request<OrderMutationResponse>('/orders', {
+      method: 'POST',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  pay(tenantId: number, orderId: number, amountPaidCents: number) {
+    return request<OrderMutationResponse>(`/orders/${orderId}/pay`, {
+      method: 'POST',
+      tenantId,
+      body: JSON.stringify({ amount_paid_cents: amountPaidCents }),
+    })
+  },
+
+  void(tenantId: number, orderId: number) {
+    return request<OrderMutationResponse>(`/orders/${orderId}/void`, {
+      method: 'POST',
+      tenantId,
+    })
   },
 }
 

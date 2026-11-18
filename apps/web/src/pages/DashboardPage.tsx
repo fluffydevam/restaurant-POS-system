@@ -1,10 +1,19 @@
+import { useQuery } from '@tanstack/react-query'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { WorkspaceLayout } from '../components/WorkspaceLayout'
 import { useWorkspace } from '../hooks/useWorkspace'
+import { orderApi } from '../lib/api'
+import { formatMoney } from '../lib/money'
 
 export function DashboardPage() {
-  const { user, clear, membership, tenant, branches, isLoading } = useWorkspace()
+  const { user, clear, membership, tenant, tenantId, branches, isLoading } = useWorkspace()
   const navigate = useNavigate()
+
+  const summary = useQuery({
+    queryKey: ['order-summary', tenantId],
+    queryFn: () => orderApi.summary(tenantId),
+    enabled: tenantId > 0,
+  })
 
   if (user && !membership) {
     return (
@@ -77,10 +86,14 @@ export function DashboardPage() {
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <Stat label="Orders today" value="0" />
-          <Stat label="Open shifts" value="0" />
+          <Stat label="Orders today" value={String(summary.data?.orders_today ?? 0)} />
+          <Stat
+            label="Sales today"
+            value={formatMoney(summary.data?.sales_today_cents ?? 0, tenant.currency)}
+            accent
+          />
+          <Stat label="Open orders" value={String(summary.data?.open_orders ?? 0)} />
           <Stat label="Branches" value={String(itemCount)} />
-          <Stat label="Plan" value="Free forever" accent />
         </section>
 
         <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">

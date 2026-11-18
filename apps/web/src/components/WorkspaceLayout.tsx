@@ -4,7 +4,7 @@ import { authApi } from '../lib/api'
 import { useAuth } from '../store/auth'
 import type { Branch, Membership, Tenant, User } from '../lib/types'
 
-type ActiveNav = 'dashboard' | 'menu'
+type ActiveNav = 'dashboard' | 'pos' | 'orders' | 'menu'
 
 export function WorkspaceLayout({
   user,
@@ -53,8 +53,10 @@ export function WorkspaceLayout({
 
           <nav className="mt-4 space-y-1">
             <NavLink to="/" label="Dashboard" isActive={active === 'dashboard'} />
+            <NavLink to="/pos" label="Point of sale" isActive={active === 'pos'} hint="Register" />
+            <NavLink to="/orders" label="Orders" isActive={active === 'orders'} />
             <NavLink to="/menu" label="Menu" isActive={active === 'menu'} hint="Catalog" />
-            {['Point of sale', 'Orders', 'Tables', 'Staff', 'Settings'].map((label) => (
+            {['Tables', 'Staff', 'Settings'].map((label) => (
               <div
                 key={label}
                 className="flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-500"

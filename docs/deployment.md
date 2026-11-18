@@ -163,6 +163,8 @@ MAIL_MAILER=log
    and the owner can then open the workspace.
 7. Logging in as `owner@demo.test` and opening `/menu` shows the seeded categories and seven items;
    adding and editing an item should persist.
+8. Opening `/pos`, adding items and completing a cash sale creates an order; `/orders` lists it with
+   the correct change and today's totals on `/`.
 
 ## 6. Platform admin operations
 

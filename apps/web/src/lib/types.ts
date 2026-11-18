@@ -164,3 +164,64 @@ export interface MenuMutationResponse {
   item?: MenuItem
   category?: MenuCategory
 }
+
+export type OrderStatus = 'open' | 'completed' | 'voided'
+export type OrderType = 'dine_in' | 'takeaway' | 'delivery'
+
+export interface OrderItem {
+  id: number
+  menu_item_id: number | null
+  name: string
+  sku: string | null
+  unit_price_cents: number
+  quantity: number
+  line_total_cents: number
+  notes: string | null
+}
+
+export interface Order {
+  id: number
+  order_number: string
+  status: OrderStatus
+  status_label: string
+  type: OrderType
+  type_label: string
+  customer_name: string | null
+  notes: string | null
+  subtotal_cents: number
+  discount_cents: number
+  tax_cents: number
+  total_cents: number
+  amount_paid_cents: number
+  change_cents: number
+  payment_method: string | null
+  items_count?: number
+  items?: OrderItem[]
+  branch?: Branch
+  cashier?: { id: number | null; name: string | null }
+  placed_at: string | null
+  paid_at: string | null
+  created_at: string | null
+}
+
+export interface OrderSummary {
+  date: string
+  orders_today: number
+  sales_today_cents: number
+  items_sold_today: number
+  open_orders: number
+  average_order_cents: number
+}
+
+export interface OrderMutationResponse {
+  message: string
+  order: Order
+}
+
+export interface CreateOrderPayload {
+  type?: OrderType
+  branch_id?: number | null
+  customer_name?: string | null
+  notes?: string | null
+  items: { menu_item_id: number; quantity: number; notes?: string | null }[]
+}
