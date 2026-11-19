@@ -1,14 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect, type ReactNode } from 'react'
-import {
-  BrowserRouter,
-  Link,
-  Navigate,
-  Outlet,
-  Route,
-  Routes,
-  useParams,
-} from 'react-router-dom'
+import { BrowserRouter, Link, Navigate, Outlet, Route, Routes, useParams } from 'react-router-dom'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { authApi } from './lib/api'
 import {
   activeMemberships,
@@ -194,52 +187,54 @@ function WorkspaceRedirect({ path = '' }: { path?: string }) {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <SessionBootstrap>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route
-              path="/admin"
-              element={
-                <RequireAuth>
-                  <AdminPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/pending"
-              element={
-                <RequireAuth>
-                  <PendingPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/t/:slug"
-              element={
-                <RequireAuth>
-                  <WorkspaceGate />
-                </RequireAuth>
-              }
-            >
-              <Route index element={<DashboardPage />} />
-              <Route path="pos" element={<PosPage />} />
-              <Route path="orders" element={<OrdersPage />} />
-              <Route path="menu" element={<MenuPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-              <Route path="onboarding" element={<OnboardingPage />} />
-            </Route>
-            <Route path="/pos" element={<WorkspaceRedirect path="pos" />} />
-            <Route path="/orders" element={<WorkspaceRedirect path="orders" />} />
-            <Route path="/menu" element={<WorkspaceRedirect path="menu" />} />
-            <Route path="/settings" element={<WorkspaceRedirect path="settings" />} />
-            <Route path="/onboarding" element={<WorkspaceRedirect path="onboarding" />} />
-            <Route path="/" element={<WorkspaceRedirect />} />
-            <Route path="*" element={<WorkspaceRedirect />} />
-          </Routes>
-        </SessionBootstrap>
-      </BrowserRouter>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <SessionBootstrap>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route
+                path="/admin"
+                element={
+                  <RequireAuth>
+                    <AdminPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/pending"
+                element={
+                  <RequireAuth>
+                    <PendingPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/t/:slug"
+                element={
+                  <RequireAuth>
+                    <WorkspaceGate />
+                  </RequireAuth>
+                }
+              >
+                <Route index element={<DashboardPage />} />
+                <Route path="pos" element={<PosPage />} />
+                <Route path="orders" element={<OrdersPage />} />
+                <Route path="menu" element={<MenuPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="onboarding" element={<OnboardingPage />} />
+              </Route>
+              <Route path="/pos" element={<WorkspaceRedirect path="pos" />} />
+              <Route path="/orders" element={<WorkspaceRedirect path="orders" />} />
+              <Route path="/menu" element={<WorkspaceRedirect path="menu" />} />
+              <Route path="/settings" element={<WorkspaceRedirect path="settings" />} />
+              <Route path="/onboarding" element={<WorkspaceRedirect path="onboarding" />} />
+              <Route path="/" element={<WorkspaceRedirect />} />
+              <Route path="*" element={<WorkspaceRedirect />} />
+            </Routes>
+          </SessionBootstrap>
+        </BrowserRouter>
+      </ErrorBoundary>
     </QueryClientProvider>
   )
 }

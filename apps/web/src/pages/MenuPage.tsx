@@ -106,7 +106,7 @@ export function MenuPage() {
   }
 
   const allItems = items.data?.data ?? []
-  const allCategories = categories.data ?? []
+  const allCategories = Array.isArray(categories.data) ? categories.data : []
   const term = search.trim().toLowerCase()
 
   const visibleItems = allItems.filter((item) => {

@@ -172,7 +172,7 @@ export function PosPage() {
             <CategoryChip active={categoryFilter === 'all'} onClick={() => setCategoryFilter('all')}>
               All items
             </CategoryChip>
-            {(categories.data ?? []).map((category) => (
+            {(Array.isArray(categories.data) ? categories.data : []).map((category) => (
               <CategoryChip
                 key={category.id}
                 active={categoryFilter === category.id}

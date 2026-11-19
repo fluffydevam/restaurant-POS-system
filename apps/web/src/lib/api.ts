@@ -164,8 +164,10 @@ export function primaryMembership(user: User | null) {
 }
 
 export const menuApi = {
-  categories(tenantId: number) {
-    return request<MenuCategory[]>('/menu/categories', { tenantId })
+  async categories(tenantId: number): Promise<MenuCategory[]> {
+    const response = await request<{ data: MenuCategory[] }>('/menu/categories', { tenantId })
+
+    return response.data
   },
 
   items(tenantId: number) {
