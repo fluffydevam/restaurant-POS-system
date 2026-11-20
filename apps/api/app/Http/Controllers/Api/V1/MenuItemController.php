@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\MenuItemResource;
 use App\Models\MenuItem;
 use App\Support\TenantContext;
+use App\Support\TenantLimits;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -54,6 +55,8 @@ class MenuItemController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        TenantLimits::ensure('menu_items');
+
         $validated = $request->validate($this->rules());
 
         $item = MenuItem::create($validated);

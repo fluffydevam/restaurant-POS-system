@@ -59,6 +59,8 @@ Demo accounts (created by the seeders):
 
 ```
 owner@demo.test   / password   # owner of Demo Restaurant (active)
+manager@demo.test / password   # manager at Demo Restaurant
+staff@demo.test   / password   # staff at Demo Restaurant
 admin@demo.test   / password   # platform admin, no restaurant membership
 pending@demo.test / secret123  # owner of Pending Cafe (waiting for approval)
 ```
@@ -71,7 +73,7 @@ Every workspace lives under its restaurant slug, for example `/t/demo`, `/t/demo
 `/t/demo/settings`. Links can be shared with anyone who belongs to that restaurant. Visiting a slug
 you do not belong to shows a workspace picker instead of leaking data.
 
-Legacy paths (`/`, `/pos`, `/orders`, `/menu`, `/settings`, `/onboarding`) redirect to the remembered
+Legacy paths (`/`, `/pos`, `/orders`, `/menu`, `/tables`, `/staff`, `/settings`, `/onboarding`) redirect to the remembered
 workspace, so old bookmarks keep working. When a user belongs to more than one active restaurant, an
 in-app switcher appears in the sidebar and header, and the last used workspace is remembered across
 sessions. Pending applications remain on `/pending` until approved.
@@ -123,11 +125,37 @@ Tests run against in-memory SQLite (`phpunit.xml`) so they never touch the Supab
 | POST | `/api/v1/orders` | Open an order from menu item IDs (`owner`/`manager`/`staff`) |
 | POST | `/api/v1/orders/{id}/pay` | Cash payment; records tendered and change |
 | POST | `/api/v1/orders/{id}/void` | Void an open order (`owner`/`manager`) |
+| GET | `/api/v1/tables` | Floor list with `branch_id`, `status`, `search` filters and usage caps |
+| POST | `/api/v1/tables` | Create table (`owner`/`manager`) |
+| PATCH | `/api/v1/tables/{id}` | Edit table (`owner`/`manager`) |
+| PATCH | `/api/v1/tables/{id}/status` | Change status; all roles with an active membership |
+| DELETE | `/api/v1/tables/{id}` | Soft-delete table (`owner`/`manager`) |
+| GET | `/api/v1/staff` | Team list with `role`, `active`, `search` filters and usage caps |
+| POST | `/api/v1/staff` | Add a member with a login (`owner`/`manager`; managers may only add staff) |
+| PATCH | `/api/v1/staff/{id}` | Edit role/name/branch/active state, with owner lockout protection |
+| DELETE | `/api/v1/staff/{id}` | Remove a member, with owner lockout protection |
 | GET | `/api/v1/admin/stats` | Platform admin only: tenant counts by status |
 | GET | `/api/v1/admin/tenants` | Platform admin only: `status`, `search`, `page` filters |
 | POST | `/api/v1/admin/tenants/{id}/approve` | Activates the tenant, provisions a default branch, emails the owner |
 | POST | `/api/v1/admin/tenants/{id}/suspend` | `reason` is optional; blocks the tenant workspace |
 | POST | `/api/v1/admin/tenants/{id}/reactivate` | Restores workspace access |
+
+### Free plan caps
+
+The platform stays free forever, so each tenant has soft caps configured in `apps/api/config/tenants.php`
+(or via `TENANT_LIMIT_*` environment variables):
+
+| Resource | Default cap |
+|---|---|
+| Branches | 3 |
+| Dining tables | 30 |
+| Staff members | 10 |
+| Menu items | 150 |
+
+List endpoints return `meta.limits` with `used`, `limit`, `percent`, `near_limit`, and `at_limit` for
+each resource. The UI shows a progress notice at 80% and disables creation at 100%; the API also
+rejects new records with a validation error so direct calls cannot bypass the cap. Existing records
+can always be edited or deleted.
 
 Platform admin routes require `users.is_platform_admin`. Seed `AdminSeeder` to create
 `admin@demo.test`, or promote an existing user:
@@ -168,4 +196,4 @@ Phase 0 / M1 foundation:
 - [x] Settings (`/settings`) and a four-step onboarding wizard (`/onboarding`)
 - [x] Tax and service charge configured in basis points, applied to new orders and receipts
 - [x] Slug-based workspace URLs (`/t/{slug}`), legacy redirects, and a multi-restaurant switcher
-- [ ] Tables and staff role management
+- [x] Tables and staff role management, with soft per-tenant caps

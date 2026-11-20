@@ -5,6 +5,7 @@ import type {
   AuthResponse,
   Branch,
   BranchUpdatePayload,
+  DiningTablePayload,
   MeResponse,
   MenuCategory,
   MenuCategoryPayload,
@@ -18,6 +19,12 @@ import type {
   OrderSummary,
   Paginated,
   RegisterPayload,
+  StaffListResponse,
+  StaffMutationResponse,
+  StaffPayload,
+  TableListResponse,
+  TableMutationResponse,
+  TableStatus,
   TenantContextResponse,
   TenantStatus,
   TenantUpdatePayload,
@@ -261,6 +268,94 @@ export const orderApi = {
       method: 'POST',
       tenantId,
     })
+  },
+}
+
+export const tableApi = {
+  async list(
+    tenantId: number,
+    params: { branchId?: number | null; status?: TableStatus; search?: string } = {},
+  ): Promise<TableListResponse> {
+    const query = new URLSearchParams()
+
+    if (params.branchId) query.set('branch_id', String(params.branchId))
+    if (params.status) query.set('status', params.status)
+    if (params.search) query.set('search', params.search)
+
+    const suffix = query.toString()
+    const response = await request<TableListResponse>(`/tables${suffix ? `?${suffix}` : ''}`, {
+      tenantId,
+    })
+
+    // Never let an unexpected response shape blank the floor view.
+    return { ...response, data: Array.isArray(response.data) ? response.data : [] }
+  },
+
+  create(tenantId: number, payload: DiningTablePayload) {
+    return request<TableMutationResponse>('/tables', {
+      method: 'POST',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  update(tenantId: number, id: number, payload: Partial<DiningTablePayload>) {
+    return request<TableMutationResponse>(`/tables/${id}`, {
+      method: 'PATCH',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  status(tenantId: number, id: number, status: TableStatus) {
+    return request<TableMutationResponse>(`/tables/${id}/status`, {
+      method: 'PATCH',
+      tenantId,
+      body: JSON.stringify({ status }),
+    })
+  },
+
+  remove(tenantId: number, id: number) {
+    return request<{ message: string }>(`/tables/${id}`, { method: 'DELETE', tenantId })
+  },
+}
+
+export const staffApi = {
+  async list(
+    tenantId: number,
+    params: { role?: StaffPayload['role']; search?: string } = {},
+  ): Promise<StaffListResponse> {
+    const query = new URLSearchParams()
+
+    if (params.role) query.set('role', params.role)
+    if (params.search) query.set('search', params.search)
+
+    const suffix = query.toString()
+    const response = await request<StaffListResponse>(`/staff${suffix ? `?${suffix}` : ''}`, {
+      tenantId,
+    })
+
+    return { ...response, data: Array.isArray(response.data) ? response.data : [] }
+  },
+
+  create(tenantId: number, payload: StaffPayload) {
+    return request<StaffMutationResponse>('/staff', {
+      method: 'POST',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  update(tenantId: number, id: number, payload: Partial<StaffPayload>) {
+    return request<StaffMutationResponse>(`/staff/${id}`, {
+      method: 'PATCH',
+      tenantId,
+      body: JSON.stringify(payload),
+    })
+  },
+
+  remove(tenantId: number, id: number) {
+    return request<{ message: string }>(`/staff/${id}`, { method: 'DELETE', tenantId })
   },
 }
 

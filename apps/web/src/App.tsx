@@ -23,6 +23,8 @@ import { PendingPage } from './pages/PendingPage'
 import { PosPage } from './pages/PosPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { SettingsPage } from './pages/SettingsPage'
+import { StaffPage } from './pages/StaffPage'
+import { TablesPage } from './pages/TablesPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -221,12 +223,16 @@ export default function App() {
                 <Route path="pos" element={<PosPage />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="menu" element={<MenuPage />} />
+                <Route path="tables" element={<TablesPage />} />
+                <Route path="staff" element={<StaffPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="onboarding" element={<OnboardingPage />} />
               </Route>
               <Route path="/pos" element={<WorkspaceRedirect path="pos" />} />
               <Route path="/orders" element={<WorkspaceRedirect path="orders" />} />
               <Route path="/menu" element={<WorkspaceRedirect path="menu" />} />
+              <Route path="/tables" element={<WorkspaceRedirect path="tables" />} />
+              <Route path="/staff" element={<WorkspaceRedirect path="staff" />} />
               <Route path="/settings" element={<WorkspaceRedirect path="settings" />} />
               <Route path="/onboarding" element={<WorkspaceRedirect path="onboarding" />} />
               <Route path="/" element={<WorkspaceRedirect />} />

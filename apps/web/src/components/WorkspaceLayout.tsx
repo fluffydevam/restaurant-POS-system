@@ -5,7 +5,7 @@ import { activeMemberships, pendingMembership, rememberSlug, workspaceBase, work
 import { useAuth } from '../store/auth'
 import type { Branch, Membership, Tenant, User } from '../lib/types'
 
-type ActiveNav = 'dashboard' | 'pos' | 'orders' | 'menu' | 'settings'
+type ActiveNav = 'dashboard' | 'pos' | 'orders' | 'menu' | 'tables' | 'staff' | 'settings'
 
 export function WorkspaceLayout({
   user,
@@ -92,16 +92,8 @@ export function WorkspaceLayout({
             <NavLink to={`${base}/pos`} label="Point of sale" isActive={active === 'pos'} hint="Register" />
             <NavLink to={`${base}/orders`} label="Orders" isActive={active === 'orders'} />
             <NavLink to={`${base}/menu`} label="Menu" isActive={active === 'menu'} hint="Catalog" />
-            {['Tables', 'Staff'].map((label) => (
-              <div
-                key={label}
-                className="flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-500"
-                title="Next milestone"
-              >
-                <span>{label}</span>
-                <span className="text-[10px] uppercase tracking-wide">Soon</span>
-              </div>
-            ))}
+            <NavLink to={`${base}/tables`} label="Tables" isActive={active === 'tables'} hint="Floor" />
+            <NavLink to={`${base}/staff`} label="Staff" isActive={active === 'staff'} hint="Team" />
             <NavLink to={`${base}/settings`} label="Settings" isActive={active === 'settings'} />
             {user?.is_platform_admin ? (
               <Link

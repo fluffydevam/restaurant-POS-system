@@ -262,3 +262,88 @@ export interface BranchUpdatePayload {
   timezone?: string | null
   is_active?: boolean
 }
+
+export interface LimitUsage {
+  used: number
+  limit: number
+  percent: number
+  near_limit: boolean
+  at_limit: boolean
+}
+
+export type LimitResource = 'branches' | 'tables' | 'staff' | 'menu_items'
+
+export type LimitUsageMap = Record<LimitResource, LimitUsage>
+
+export interface LimitsMeta {
+  limits: LimitUsageMap
+}
+
+export type TableStatus = 'available' | 'occupied' | 'reserved'
+
+export interface DiningTable {
+  id: number
+  branch_id: number | null
+  branch?: Branch | null
+  name: string
+  zone: string | null
+  seats: number
+  status: TableStatus
+  status_label: string
+  sort_order: number
+  is_active: boolean
+}
+
+export interface DiningTablePayload {
+  branch_id?: number | null
+  name: string
+  zone?: string | null
+  seats?: number
+  status?: TableStatus
+  sort_order?: number
+  is_active?: boolean
+}
+
+export interface TableListResponse {
+  data: DiningTable[]
+  meta: LimitsMeta
+}
+
+export interface TableMutationResponse {
+  message: string
+  table: DiningTable
+  meta?: LimitsMeta
+}
+
+export type StaffRole = 'owner' | 'manager' | 'staff'
+
+export interface StaffMember {
+  id: number
+  user_id: number
+  name: string | null
+  email: string | null
+  role: StaffRole
+  is_active: boolean
+  branch?: Branch | null
+  joined_at: string | null
+}
+
+export interface StaffPayload {
+  name: string
+  email?: string
+  password?: string
+  role: StaffRole
+  branch_id?: number | null
+  is_active?: boolean
+}
+
+export interface StaffListResponse {
+  data: StaffMember[]
+  meta: LimitsMeta
+}
+
+export interface StaffMutationResponse {
+  message: string
+  staff: StaffMember
+  meta?: LimitsMeta
+}

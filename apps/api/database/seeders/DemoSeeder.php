@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\TableStatus;
 use App\Enums\TenantStatus;
+use App\Models\DiningTable;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Tenant;
@@ -56,6 +58,57 @@ class DemoSeeder extends Seeder
         );
 
         $this->seedMenu();
+        $this->seedTables($tenant);
+        $this->seedStaff($tenant);
+    }
+
+    private function seedTables(Tenant $tenant): void
+    {
+        $branchId = $tenant->branches()->where('is_default', true)->value('id');
+
+        $tables = [
+            ['T1', 'Window', 2, TableStatus::Available, 1],
+            ['T2', 'Window', 2, TableStatus::Occupied, 2],
+            ['T3', 'Patio', 4, TableStatus::Available, 3],
+            ['T4', 'Patio', 4, TableStatus::Reserved, 4],
+        ];
+
+        foreach ($tables as [$name, $zone, $seats, $status, $sortOrder]) {
+            DiningTable::firstOrCreate(
+                ['name' => $name, 'branch_id' => $branchId],
+                [
+                    'zone' => $zone,
+                    'seats' => $seats,
+                    'status' => $status,
+                    'sort_order' => $sortOrder,
+                    'is_active' => true,
+                ]
+            );
+        }
+    }
+
+    private function seedStaff(Tenant $tenant): void
+    {
+        $people = [
+            ['manager@demo.test', 'Demo Manager', 'manager'],
+            ['staff@demo.test', 'Demo Staff', 'staff'],
+        ];
+
+        foreach ($people as [$email, $name, $role]) {
+            $user = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name' => $name,
+                    'password' => 'password',
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            $tenant->memberships()->updateOrCreate(
+                ['user_id' => $user->id],
+                ['role' => $role, 'is_active' => true]
+            );
+        }
     }
 
     private function seedMenu(): void

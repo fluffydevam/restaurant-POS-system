@@ -8,9 +8,11 @@ use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\ResendVerificationController;
 use App\Http\Controllers\Api\V1\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\V1\BranchController;
+use App\Http\Controllers\Api\V1\DiningTableController;
 use App\Http\Controllers\Api\V1\MenuCategoryController;
 use App\Http\Controllers\Api\V1\MenuItemController;
 use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\StaffController;
 use App\Http\Controllers\Api\V1\TenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -63,6 +65,27 @@ Route::prefix('v1')->group(function () {
                 Route::middleware('role:owner,manager')->group(function () {
                     Route::post('/{order}/void', [OrderController::class, 'void'])->whereNumber('order');
                 });
+            });
+
+            Route::prefix('tables')->group(function () {
+                Route::get('/', [DiningTableController::class, 'index']);
+
+                Route::middleware('role:owner,manager,staff')->group(function () {
+                    Route::patch('/{table}/status', [DiningTableController::class, 'status'])->whereNumber('table');
+                });
+
+                Route::middleware('role:owner,manager')->group(function () {
+                    Route::post('/', [DiningTableController::class, 'store']);
+                    Route::patch('/{table}', [DiningTableController::class, 'update'])->whereNumber('table');
+                    Route::delete('/{table}', [DiningTableController::class, 'destroy'])->whereNumber('table');
+                });
+            });
+
+            Route::prefix('staff')->middleware('role:owner,manager')->group(function () {
+                Route::get('/', [StaffController::class, 'index']);
+                Route::post('/', [StaffController::class, 'store']);
+                Route::patch('/{membership}', [StaffController::class, 'update'])->whereNumber('membership');
+                Route::delete('/{membership}', [StaffController::class, 'destroy'])->whereNumber('membership');
             });
         });
 

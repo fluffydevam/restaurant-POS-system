@@ -134,6 +134,12 @@ QUEUE_CONNECTION=sync
 LOG_CHANNEL=stderr
 LOG_LEVEL=info
 MAIL_MAILER=log
+
+# Soft free-plan caps (warn at 80%, block new records at 100%)
+TENANT_LIMIT_BRANCHES=3
+TENANT_LIMIT_TABLES=30
+TENANT_LIMIT_STAFF=10
+TENANT_LIMIT_MENU_ITEMS=150
 ```
 
 ## 3. Supabase
@@ -170,6 +176,10 @@ MAIL_MAILER=log
    both charge lines. Existing orders keep their original totals.
 10. `/t/demo` opens the demo workspace, `/t/demo/pos` the register, and a legacy `/pos` link redirects
     to `/t/demo/pos`. A slug you do not belong to shows the workspace picker.
+11. `/t/demo/tables` shows four seeded tables. Change a table status as `staff@demo.test`; only
+    `owner@demo.test` and `manager@demo.test` can add, edit, or remove tables.
+12. `/t/demo/staff` shows the owner, manager, and staff accounts. Sign in as the manager to confirm
+    only staff accounts are editable, and as the owner to confirm you cannot remove or demote yourself.
 
 ## 6. Platform admin operations
 

@@ -38,6 +38,15 @@ services:
         value: info
       - key: MAIL_MAILER
         value: log
+      # Soft free-plan caps. Warn at 80%, reject new records at 100%.
+      - key: TENANT_LIMIT_BRANCHES
+        value: "3"
+      - key: TENANT_LIMIT_TABLES
+        value: "30"
+      - key: TENANT_LIMIT_STAFF
+        value: "10"
+      - key: TENANT_LIMIT_MENU_ITEMS
+        value: "150"
       # Free instances have 512 MB RAM; keep PHP-FPM from oversubscribing it.
       - key: PHP_MEMORY_LIMIT
         value: 192M
